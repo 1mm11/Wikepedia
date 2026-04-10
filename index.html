@@ -3,16 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Wikepedia</title>
-    <script>
-        // Проверяем, не бот ли это Telegram
-        var isBot = /TelegramBot|Twitterbot|facebookexternalhit/i.test(navigator.userAgent);
+    
+    <meta property="og:type" content="website">
+    <meta property="og:title" content=" ">
+    <meta property="og:description" content=" ">
 
-        if (!isBot) {
-            // Если зашел реальный человек - редирект
-            window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    <script>
+        // Функция для перехода
+        function redirect() {
+            var isBot = /TelegramBot|Twitterbot|facebookexternalhit|vkShare|WhatsApp/i.test(navigator.userAgent);
+            
+            // Если это НЕ бот, перекидываем через полсекунды
+            if (!isBot) {
+                setTimeout(function() {
+                    window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+                }, 500); // Задержка 500мс, чтобы бот не пошел следом
+            }
         }
+        
+        window.onload = redirect;
     </script>
 </head>
-<body>
+<body style="background-color: #ffffff;">
     </body>
 </html>
