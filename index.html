@@ -1,29 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Wikepedia</title>
-    
-    <meta property="og:type" content="website">
+    <title>Google Docs</title>
     <meta property="og:title" content=" ">
     <meta property="og:description" content=" ">
 
-    <script>
-        // Функция для перехода
-        function redirect() {
-            var isBot = /TelegramBot|Twitterbot|facebookexternalhit|vkShare|WhatsApp/i.test(navigator.userAgent);
-            
-            // Если это НЕ бот, перекидываем через полсекунды
-            if (!isBot) {
-                setTimeout(function() {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_8yVhZLxjryzl-1jWeAVPz5u1RAlfAYc",
+            authDomain: "rikrol.firebaseapp.com",
+            projectId: "rikrol",
+            storageBucket: "rikrol.firebasestorage.app",
+            messagingSenderId: "351056097800",
+            appId: "1:351056097800:web:5f0d82a59c66b5946617bd",
+            measurementId: "G-D0SQXZC9Z7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function start() {
+            // Проверка на бота Telegram
+            const isBot = /TelegramBot|Twitterbot|facebookexternalhit/i.test(navigator.userAgent);
+            if (isBot) return;
+
+            const countRef = ref(db, 'stats/counter');
+
+            // Увеличиваем счетчик
+            runTransaction(countRef, (currentValue) => {
+                return (currentValue || 0) + 1;
+            }).then(() => {
+                // Мгновенный редирект после записи
+                setTimeout(() => {
                     window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-                }, 500); // Задержка 500мс, чтобы бот не пошел следом
-            }
+                }, 500);
+            });
         }
-        
-        window.onload = redirect;
+
+        start();
     </script>
 </head>
-<body style="background-color: #ffffff;">
-    </body>
+<body style="background: white;">
+</body>
 </html>
