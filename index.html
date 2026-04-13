@@ -10,7 +10,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-        // Твой конфиг с правильным европейским URL базы
         const firebaseConfig = {
             apiKey: "AIzaSyB_8yVhZLxjryzl-1jWeAVPz5u1RAlfAYc",
             authDomain: "rikrol.firebaseapp.com",
@@ -25,25 +24,30 @@
         const db = getDatabase(app);
 
         function startRickroll() {
-            // Защита от ботов Telegram
             const isBot = /TelegramBot|Twitterbot|facebookexternalhit/i.test(navigator.userAgent);
-            
-            if (!isBot) {
-                // 1. Безотказный редирект через полсекунды
-                setTimeout(() => {
-                    window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-                }, 500);
+            if (isBot) return;
 
-                // 2. Фоновая запись в базу данных
+            // 1. Проверяем, заходил ли этот человек раньше
+            const hasBeenRickrolled = localStorage.getItem('visited');
+
+            if (!hasBeenRickrolled) {
+                // Если зашел впервые — записываем в базу
                 try {
                     const countRef = ref(db, 'stats/counter');
                     runTransaction(countRef, (currentValue) => {
                         return (currentValue || 0) + 1;
                     });
+                    // Ставим метку в браузер, чтобы больше не считать его
+                    localStorage.setItem('visited', 'true');
                 } catch (e) {
-                    console.error("Ошибка базы:", e);
+                    console.error(e);
                 }
             }
+
+            // 2. Редирект делаем ВСЕГДА, независимо от того, первый это раз или нет
+            setTimeout(() => {
+                window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+            }, 400);
         }
 
         startRickroll();
