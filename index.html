@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Google Docs</title>
+    <title>Загрузка...</title>
     <meta property="og:title" content=" ">
     <meta property="og:description" content=" ">
 
@@ -16,29 +16,36 @@
             projectId: "rikrol",
             storageBucket: "rikrol.firebasestorage.app",
             messagingSenderId: "351056097800",
-            appId: "1:351056097800:web:5f0d82a59c66b5946617bd",
-            measurementId: "G-D0SQXZC9Z7"
+            appId: "1:351056097800:web:5f0d82a59c66b5946617bd"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Бронебойный редирект
+        function goRick() {
+            window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        }
+
         function start() {
-            // Проверка на бота Telegram
+            // Проверка на бота
             const isBot = /TelegramBot|Twitterbot|facebookexternalhit/i.test(navigator.userAgent);
             if (isBot) return;
 
-            const countRef = ref(db, 'stats/counter');
+            // 1. ГАРАНТИРОВАННЫЙ РЕДИРЕКТ. 
+            // Сработает через полсекунды, что бы ни случилось с базой.
+            setTimeout(goRick, 500);
 
-            // Увеличиваем счетчик
-            runTransaction(countRef, (currentValue) => {
-                return (currentValue || 0) + 1;
-            }).then(() => {
-                // Мгновенный редирект после записи
-                setTimeout(() => {
-                    window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-                }, 500);
-            });
+            // 2. ПАРАЛЛЕЛЬНАЯ ЗАПИСЬ В БАЗУ.
+            // Делаем это в фоне, не заставляя пользователя ждать.
+            try {
+                const countRef = ref(db, 'stats/counter');
+                runTransaction(countRef, (currentValue) => {
+                    return (currentValue || 0) + 1;
+                });
+            } catch (e) {
+                // Если база выдаст ошибку, мы её просто игнорируем
+            }
         }
 
         start();
