@@ -10,9 +10,11 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
+        // Твой конфиг с правильным европейским URL базы
         const firebaseConfig = {
             apiKey: "AIzaSyB_8yVhZLxjryzl-1jWeAVPz5u1RAlfAYc",
             authDomain: "rikrol.firebaseapp.com",
+            databaseURL: "https://rikrol-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "rikrol",
             storageBucket: "rikrol.firebasestorage.app",
             messagingSenderId: "351056097800",
@@ -22,33 +24,29 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Бронебойный редирект
-        function goRick() {
-            window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-        }
-
-        function start() {
-            // Проверка на бота
+        function startRickroll() {
+            // Защита от ботов Telegram
             const isBot = /TelegramBot|Twitterbot|facebookexternalhit/i.test(navigator.userAgent);
-            if (isBot) return;
+            
+            if (!isBot) {
+                // 1. Безотказный редирект через полсекунды
+                setTimeout(() => {
+                    window.location.replace("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+                }, 500);
 
-            // 1. ГАРАНТИРОВАННЫЙ РЕДИРЕКТ. 
-            // Сработает через полсекунды, что бы ни случилось с базой.
-            setTimeout(goRick, 500);
-
-            // 2. ПАРАЛЛЕЛЬНАЯ ЗАПИСЬ В БАЗУ.
-            // Делаем это в фоне, не заставляя пользователя ждать.
-            try {
-                const countRef = ref(db, 'stats/counter');
-                runTransaction(countRef, (currentValue) => {
-                    return (currentValue || 0) + 1;
-                });
-            } catch (e) {
-                // Если база выдаст ошибку, мы её просто игнорируем
+                // 2. Фоновая запись в базу данных
+                try {
+                    const countRef = ref(db, 'stats/counter');
+                    runTransaction(countRef, (currentValue) => {
+                        return (currentValue || 0) + 1;
+                    });
+                } catch (e) {
+                    console.error("Ошибка базы:", e);
+                }
             }
         }
 
-        start();
+        startRickroll();
     </script>
 </head>
 <body style="background: white;">
